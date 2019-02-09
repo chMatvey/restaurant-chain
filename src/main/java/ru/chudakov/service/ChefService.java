@@ -6,4 +6,12 @@ import java.util.List;
 
 public interface ChefService {
     public List<Chef> getAllChef();
+
+    public Chef addChef(Chef chef);
+
+    public void deleteChef(Chef chef);
+
+    public Chef updateChef(Chef chef);
+
+    public Chef findChefById(int id);
 }

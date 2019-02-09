@@ -3,12 +3,12 @@ package ru.chudakov.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.chudakov.domain.Chef;
+import ru.chudakov.ChefPair;
 import ru.chudakov.service.TimetableService;
 
 @RestController
 public class TimetableController {
-    private TimetableService timetableService;
+    private final TimetableService timetableService;
 
     @Autowired
     public TimetableController(TimetableService timetableService) {
@@ -16,7 +16,7 @@ public class TimetableController {
     }
 
     @GetMapping("/timetable")
-    public Chef[][] getTimetable() {
-        return timetableService.generateTimetable();
+    public ChefPair[][] getTimetable() {
+        return timetableService.generateTimetable(30, 20);
     }
 }

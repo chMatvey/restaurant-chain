@@ -33,7 +33,7 @@ public class TimetableServiceImpl implements TimetableService {
     public ChefPair[][] generateTimetable(int countDays, int countRestaurant) {
         List<Chef> chefs = Lists.newArrayList(chefRepository.findAll());
         List<Department> departments = Lists.newArrayList(departmentRepository.findAll());
-        ChefPair[][] result = new ChefPair[countDays][countRestaurant * departments.size()];
+        ChefPair[][] result = new ChefPair[countRestaurant][countDays * departments.size()];
         Comparator<Chef> comparatorByDurationWorkDays = Comparator.comparing(Chef::getDurationWorkDay);
         chefs.sort(comparatorByDurationWorkDays);
         Map<Chef, Integer> busyChefs = new HashMap<>();
@@ -52,15 +52,18 @@ public class TimetableServiceImpl implements TimetableService {
 //                indexDepartment++;
 //            }
 //        }
-        for (int i = 0; i < countDays; i++) {
+        for (int i = 0; i < countRestaurant; i++) {
             int indexDepartment = 0;
             while (containEmptyDay(result[i])) {
                 ChefPair chefPair;
                 if (result[i][indexDepartment] == null) {
                     chefPair = getPairForOneDayAndOneDepartment(chefs, departments.get(indexDepartment % 3));
-                } else {
+                } else if (result[i][indexDepartment].isNotFullPair()) {
                     chefPair = getPairForOneDayAndOneDepartment(chefs, departments.get(indexDepartment % 3),
                             result[i][indexDepartment].getNotNullChef());
+                } else {
+                    indexDepartment++;
+                    continue;
                 }
                 if (chefPair == null) {
                     return null;
@@ -69,11 +72,18 @@ public class TimetableServiceImpl implements TimetableService {
                 int countWorkDaysSecondChef = chefPair.getSecondChef().getOperatingMode().getCountWorkingDay();
                 int min = Math.min(countWorkDaysFirstChef, countWorkDaysSecondChef);
                 int max = Math.max(countWorkDaysFirstChef, countWorkDaysSecondChef);
-                for (int j = 0; j < max; j++) {
-                    if (j < min && i + j < countDays) {
-                        result[i + j][indexDepartment] = chefPair;
-                    } else if (i + j < countDays) {
-                        result[i + j][indexDepartment] = getNotFullChefPair(chefPair);
+//                for (int j = 0; j < max; j++) {
+//                    if (j < min && i + j < countDays) {
+//                        result[i + j][indexDepartment] = chefPair;
+//                    } else if (i + j < countDays) {
+//                        result[i + j][indexDepartment] = getNotFullChefPair(chefPair);
+//                    }
+//                }
+                for (int j = indexDepartment; j < max * departments.size() + indexDepartment; j += departments.size()) {
+                    if (j < min * departments.size() + indexDepartment && j < countDays * departments.size()) {
+                        result[i][j] = chefPair;
+                    } else if (j < countDays * departments.size()) {
+                        result[i][j] = getNotFullChefPair(chefPair);
                     }
                 }
                 indexDepartment++;
@@ -86,7 +96,7 @@ public class TimetableServiceImpl implements TimetableService {
         for (ChefPair chefPair : timetableForOneDay) {
             if (chefPair == null) {
                 return true;
-            } else if (chefPair.getFirstChef() == null || chefPair.getSecondChef() == null) {
+            } else if (chefPair.isNotFullPair()) {
                 return true;
             }
         }

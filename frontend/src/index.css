@@ -1,0 +1,82 @@
+body, html {
+    height: 100%;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.main-page h1 {
+    margin: 2% auto;
+}
+
+.header-component {
+    width: 100%;
+    height: 100%;
+    background-color: #ffe8ba;
+}
+
+.header-component ul {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    position: relative;
+}
+
+.link-menu > li {
+    font-size: 20px;
+    margin: 1%;
+    padding: 0 5%;
+}
+
+.menu-head a {
+    color: black;
+}
+
+.menu-head a:hover {
+    color: white;
+}
+
+.home-carousel-component {
+    width: 100%;
+}
+
+.home-carousel-component h1 {
+    font-size: 6vw;
+    text-shadow: black 0 0 10px;
+}
+
+.home-carousel-component h1:hover {
+    color: #dae8f2;
+}
+
+#image-carousel {
+    width: 100%;
+    height: 900px;
+}
+
+.list-chefs {
+    display: flex;
+    justify-content: space-between;
+}
+
+li {
+    display: inline-block;
+}
+
+.qualification {
+    display: flex;
+}
+
+.qualification ul {
+    display: flex;
+    justify-content: space-between;
+}
+
+.qualification ul li {
+    padding: 0 10px 0;
+}
+
+.button-list {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 10px 0;
+}

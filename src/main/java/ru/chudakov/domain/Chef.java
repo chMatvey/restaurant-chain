@@ -1,6 +1,5 @@
 package ru.chudakov.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -25,11 +24,9 @@ public class Chef {
     private String lastName;
 
     @NonNull
-    @JsonIgnore
     private Integer durationWorkDay;
 
     @NonNull
-    @JsonIgnore
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "chef_department",
             joinColumns = @JoinColumn(name = "chef_id"),
@@ -41,7 +38,6 @@ public class Chef {
     private WorkShift workShift;
 
     @NonNull
-    @JsonIgnore
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "operatingMode_id")
     private OperatingMode operatingMode;

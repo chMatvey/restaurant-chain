@@ -15,7 +15,7 @@ public class TimetableController {
         this.timetableService = timetableService;
     }
 
-    @GetMapping("/timetable")
+    @GetMapping("/timetable/generate")
     public ChefPair[][] getTimetable() {
         return timetableService.generateTimetable(30, 20);
     }

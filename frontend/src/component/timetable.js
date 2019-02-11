@@ -31,15 +31,15 @@ class Timetable extends Component {
                         oneDay.push(res.data[i][j + 1].secondChef);
                         oneDay.push(res.data[i][j + 2].firstChef);
                         oneDay.push(res.data[i][j + 2].secondChef);
-                        day.id = j/3+1;
+                        day.id = j / 3 + 1;
                         day.timetable = oneDay;
                         oneRestaurant.push(day);
                     }
-                    restaurant.id = i;
+                    restaurant.id = i + 1;
                     restaurant.timetable = oneRestaurant;
                     formattedResult.push(restaurant);
                 }
-                console.log(formattedResult);
+                console.log(res.data);
                 this.props.onGetTimetable(formattedResult);
             })
     }
@@ -49,9 +49,10 @@ class Timetable extends Component {
             <div>
                 <Head/>
                 {this.props.data.map((restaurant) =>
-                    <div id={restaurant.id}>
+                    <div key={restaurant.id}>
                         <Table>
                             <thead>
+                            <tr>{"Restaurant № " + restaurant.id}</tr>
                             <tr>
                                 <td>Day</td>
                                 <td colSpan={2}>Russian</td>
@@ -70,10 +71,11 @@ class Timetable extends Component {
                             </thead>
                             <tbody>
                             {restaurant.timetable.map((day) =>
-                                <tr id={day.id}>
+                                <tr key={day.id}>
                                     <td>{day.id}</td>
                                     {day.timetable.map((chef) =>
-                                        <td id={chef.id}>{
+                                        <td key={chef.id}>{
+                                            "(" + chef.id + ") " +
                                             chef.lastName + " " +
                                             chef.firstName.substring(0, 1) + "." +
                                             chef.middleName.substring(0, 1) + "."
@@ -97,7 +99,7 @@ export default connect(
     }),
     dispatch => ({
         onGetTimetable: (timetable) => {
-            dispatch({type: 'ADD', payload: timetable})
+            dispatch({type: 'ADD_TIMETABLE', payload: timetable})
         },
     })
 )(Timetable);

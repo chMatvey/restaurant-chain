@@ -55,7 +55,11 @@ body, html {
 
 .list-chefs {
     display: flex;
-    justify-content: space-between;
+    justify-content:  space-between;
+}
+
+.chef-name{
+    width: 15%;
 }
 
 li {
@@ -79,4 +83,9 @@ li {
     display: flex;
     justify-content: space-between;
     padding: 0 10px 0;
+}
+
+.input-data {
+    display: flex;
+    justify-content: space-between;
 }

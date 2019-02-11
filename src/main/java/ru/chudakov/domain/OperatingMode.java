@@ -1,5 +1,6 @@
 package ru.chudakov.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -25,6 +26,7 @@ public class OperatingMode {
     @NonNull
     private int countDayOff;
 
+    @JsonIgnore
     public int getCountWorkAndOffDay() {
         return countWorkingDay + countDayOff;
     }

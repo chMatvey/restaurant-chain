@@ -1,10 +1,11 @@
-export default function timetable(state = [], action){
-    switch(action.type){
-        case 'ADD':{
+export default function timetable(state = [], action) {
+    switch (action.type) {
+        case 'ADD_TIMETABLE': {
             state = action.payload;
             break;
         }
-        default: break;
+        default:
+            break;
     }
     return state;
 }

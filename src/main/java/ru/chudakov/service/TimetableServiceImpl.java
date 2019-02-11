@@ -1,16 +1,11 @@
 package ru.chudakov.service;
 
 import com.google.common.collect.Lists;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.chudakov.ChefPair;
 import ru.chudakov.domain.Chef;
 import ru.chudakov.domain.Department;
-import ru.chudakov.domain.WorkShift;
 import ru.chudakov.repository.ChefRepository;
 import ru.chudakov.repository.DepartmentRepository;
 
@@ -37,6 +32,11 @@ public class TimetableServiceImpl implements TimetableService {
         Comparator<Chef> comparatorByDurationWorkDays = Comparator.comparing(Chef::getDurationWorkDay);
         chefs.sort(comparatorByDurationWorkDays);
         Map<Chef, Integer> busyChefs = new HashMap<>();
+        for (Chef chef : chefs) {
+            busyChefs.put(chef, 0);
+        }
+//        List<Chef> busyChefs = new ArrayList<>(chefs.size());
+//        List<Integer> countBusyDayForChefs = new ArrayList<>(chefs.size());
 //        List<Integer> countChefsWithCountryQualification = new ArrayList<>(departments.size());
 //        for (int i = 0; i < departments.size(); i++) {
 //            countChefsWithCountryQualification.add(0);
@@ -55,13 +55,23 @@ public class TimetableServiceImpl implements TimetableService {
         for (int i = 0; i < countRestaurant; i++) {
             int indexDepartment = 0;
             while (containEmptyDay(result[i])) {
+                if (i == 12 && indexDepartment == 53) {
+                    System.out.println("lol");
+                }
                 ChefPair chefPair;
                 if (result[i][indexDepartment] == null) {
-                    chefPair = getPairForOneDayAndOneDepartment(chefs, departments.get(indexDepartment % 3));
+                    chefPair = getPairForOneDayAndOneDepartment(chefs, departments.get(indexDepartment % 3), busyChefs);
                 } else if (result[i][indexDepartment].isNotFullPair()) {
-                    chefPair = getPairForOneDayAndOneDepartment(chefs, departments.get(indexDepartment % 3),
+                    chefPair = getPairForOneDayAndOneDepartment(chefs, departments.get(indexDepartment % 3), busyChefs,
                             result[i][indexDepartment].getNotNullChef());
                 } else {
+                    if (indexDepartment % 3 == 0) {
+                        for (Map.Entry<Chef, Integer> entry : busyChefs.entrySet()) {
+                            if (entry.getValue() != 0) {
+                                busyChefs.put(entry.getKey(), entry.getValue() - 1);
+                            }
+                        }
+                    }
                     indexDepartment++;
                     continue;
                 }
@@ -69,7 +79,17 @@ public class TimetableServiceImpl implements TimetableService {
                     return null;
                 }
                 int countWorkDaysFirstChef = chefPair.getFirstChef().getOperatingMode().getCountWorkingDay();
+                if (busyChefs.get(chefPair.getFirstChef()) != 0) {
+                    countWorkDaysFirstChef = countWorkDaysFirstChef -
+                            (chefPair.getFirstChef().getOperatingMode().getCountWorkAndOffDay() -
+                                    busyChefs.get(chefPair.getFirstChef()));
+                }
                 int countWorkDaysSecondChef = chefPair.getSecondChef().getOperatingMode().getCountWorkingDay();
+                if (busyChefs.get(chefPair.getSecondChef()) != 0) {
+                    countWorkDaysSecondChef = countWorkDaysSecondChef -
+                            (chefPair.getSecondChef().getOperatingMode().getCountWorkAndOffDay() -
+                                    busyChefs.get(chefPair.getSecondChef()));
+                }
                 int min = Math.min(countWorkDaysFirstChef, countWorkDaysSecondChef);
                 int max = Math.max(countWorkDaysFirstChef, countWorkDaysSecondChef);
 //                for (int j = 0; j < max; j++) {
@@ -81,15 +101,42 @@ public class TimetableServiceImpl implements TimetableService {
 //                }
                 for (int j = indexDepartment; j < max * departments.size() + indexDepartment; j += departments.size()) {
                     if (j < min * departments.size() + indexDepartment && j < countDays * departments.size()) {
+//                        if (busyChefs.get(chefPair.getFirstChef()) == 0 && busyChefs.get(chefPair.getSecondChef()) == 0) {
+//                            result[i][j] = chefPair;
+//                        } else if (busyChefs.get(chefPair.getFirstChef()) != 0 &&
+//                                busyChefs.get(chefPair.getSecondChef()) != 0) {
+//                            System.out.println("lol");
+//                        } else if (busyChefs.get(chefPair.getFirstChef()) != 0) {
+//                            result[i][j] = new ChefPair(chefPair.getSecondChef(), null);
+//                        } else if (busyChefs.get(chefPair.getSecondChef()) != 0) {
+//                            result[i][j] = new ChefPair(chefPair.getFirstChef(), null);
+//                        } else {
+//                            return null;
+//                        }
                         result[i][j] = chefPair;
                     } else if (j < countDays * departments.size()) {
-                        result[i][j] = getNotFullChefPair(chefPair);
+                        if (result[i][j] == null) {
+                            result[i][j] = getNotFullChefPair(chefPair, countWorkDaysFirstChef, countWorkDaysSecondChef);
+                        } else {
+                            result[i][j] = new ChefPair(result[i][j].getNotNullChef(),
+                                    getNotFullChefPair(chefPair, countWorkDaysFirstChef, countWorkDaysSecondChef)
+                                            .getNotNullChef());
+                        }
+                    }
+                }
+                updateBusyChef(busyChefs, chefPair.getFirstChef());
+                updateBusyChef(busyChefs, chefPair.getSecondChef());
+                if (indexDepartment % 3 == 0) {
+                    for (Map.Entry<Chef, Integer> entry : busyChefs.entrySet()) {
+                        if (entry.getValue() != 0) {
+                            busyChefs.put(entry.getKey(), entry.getValue() - 1);
+                        }
                     }
                 }
                 indexDepartment++;
             }
         }
-        return result;
+         return result;
     }
 
     private boolean containEmptyDay(ChefPair[] timetableForOneDay) {
@@ -110,7 +157,8 @@ public class TimetableServiceImpl implements TimetableService {
                 secondChef.getDepartments().contains(department);
     }
 
-    private ChefPair getPairForOneDayAndOneDepartment(List<Chef> chefs, Department department) {
+    private ChefPair getPairForOneDayAndOneDepartment(List<Chef> chefs, Department department,
+                                                      Map<Chef, Integer> busyChefs) {
         int indexHead = 0;
         int indexTail = chefs.size() - 1;
         Chef firstChef;
@@ -119,7 +167,8 @@ public class TimetableServiceImpl implements TimetableService {
             firstChef = chefs.get(j);
             for (int k = indexTail; k > j; k--) {
                 secondChef = chefs.get(k);
-                if (canWorkInOneDay(firstChef, secondChef, department)) {
+                if (busyChefs.get(firstChef) == 0 && busyChefs.get(secondChef) == 0 &&
+                        canWorkInOneDay(firstChef, secondChef, department)) {
                     return new ChefPair(firstChef, secondChef);
                 }
             }
@@ -127,31 +176,38 @@ public class TimetableServiceImpl implements TimetableService {
         return null;
     }
 
-    private ChefPair getPairForOneDayAndOneDepartment(List<Chef> chefs, Department department, Chef chef) {
+    private ChefPair getPairForOneDayAndOneDepartment(List<Chef> chefs, Department department,
+                                                      Map<Chef, Integer> busyChefs, Chef chef) {
         if (chef == null) {
             return null;
         }
         int indexHead = 0;
         int indexTail = chefs.size() - 1;
         for (int j = indexHead; j < chefs.size() / 2 + 1; j++) {
-            if (canWorkInOneDay(chef, chefs.get(j), department)) {
+            if (busyChefs.get(chefs.get(j)) == 0 && canWorkInOneDay(chef, chefs.get(j), department)) {
                 return new ChefPair(chef, chefs.get(j));
-            } else if (canWorkInOneDay(chef, chefs.get(indexTail - j), department)) {
+            } else if (busyChefs.get(chefs.get(indexTail - j)) == 0 &&
+                    canWorkInOneDay(chef, chefs.get(indexTail - j), department)) {
                 return new ChefPair(chef, chefs.get(indexTail - j));
             }
         }
-        return null;
+        return getPairForOneDayAndOneDepartment(chefs, department, busyChefs);
     }
 
-    private ChefPair getNotFullChefPair(ChefPair pair) {
-        int countWorkDaysForFirstChef = pair.getFirstChef().getOperatingMode().getCountWorkingDay();
-        int countWorkDaysForSecondChef = pair.getSecondChef().getOperatingMode().getCountWorkingDay();
+    private ChefPair getNotFullChefPair(ChefPair pair, int countWorkDaysForFirstChef, int countWorkDaysForSecondChef) {
         if (countWorkDaysForFirstChef < countWorkDaysForSecondChef) {
             return new ChefPair(null, pair.getSecondChef());
         } else if (countWorkDaysForFirstChef == countWorkDaysForSecondChef) {
             return pair;
         } else {
             return new ChefPair(pair.getFirstChef(), null);
+        }
+    }
+
+    private void updateBusyChef(Map<Chef, Integer> busyChef, Chef chef) {
+        if (busyChef.get(chef) == 0) {
+            busyChef.remove(chef);
+            busyChef.put(chef, chef.getOperatingMode().getCountWorkAndOffDay());
         }
     }
 }

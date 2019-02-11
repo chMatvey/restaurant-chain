@@ -24,6 +24,9 @@ public class InitDB {
 
     @PostConstruct
     public void init() {
+        if (Lists.newArrayList(chefRepository.findAll()).size() != 0) {
+            return;
+        }
         String[] firstOrMiddleNames = {"Alex", "John", "Benjamin", "Michael", "Thomas", "Morgan"};
         String[] lastName = {"Graham", "Smith", "Williams", "Taylor", "Cooper", "Baker"};
         List<Department> departments = new ArrayList<>();

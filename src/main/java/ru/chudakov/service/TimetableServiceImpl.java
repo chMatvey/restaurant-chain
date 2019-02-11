@@ -38,9 +38,6 @@ public class TimetableServiceImpl implements TimetableService {
         for (int i = 0; i < countRestaurant; i++) {
             int indexDepartment = 0;
             while (containEmptyDay(result[i])) {
-                if (i == 12 && indexDepartment == 53) {
-                    System.out.println("lol");
-                }
                 ChefPair chefPair;
                 if (result[i][indexDepartment] == null) {
                     chefPair = getPairForOneDayAndOneDepartment(chefs, departments.get(indexDepartment % 3), busyChefs);

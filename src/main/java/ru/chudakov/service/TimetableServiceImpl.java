@@ -35,23 +35,6 @@ public class TimetableServiceImpl implements TimetableService {
         for (Chef chef : chefs) {
             busyChefs.put(chef, 0);
         }
-//        List<Chef> busyChefs = new ArrayList<>(chefs.size());
-//        List<Integer> countBusyDayForChefs = new ArrayList<>(chefs.size());
-//        List<Integer> countChefsWithCountryQualification = new ArrayList<>(departments.size());
-//        for (int i = 0; i < departments.size(); i++) {
-//            countChefsWithCountryQualification.add(0);
-//        }
-//
-//        for (Chef chef : chefs) {
-//            int indexDepartment = 0;
-//            while (indexDepartment != departments.size()) {
-//                if (chef.getDepartments().contains(departments.get(indexDepartment))) {
-//                    countChefsWithCountryQualification.set(indexDepartment,
-//                            countChefsWithCountryQualification.get(indexDepartment) + 1);
-//                }
-//                indexDepartment++;
-//            }
-//        }
         for (int i = 0; i < countRestaurant; i++) {
             int indexDepartment = 0;
             while (containEmptyDay(result[i])) {
@@ -92,27 +75,8 @@ public class TimetableServiceImpl implements TimetableService {
                 }
                 int min = Math.min(countWorkDaysFirstChef, countWorkDaysSecondChef);
                 int max = Math.max(countWorkDaysFirstChef, countWorkDaysSecondChef);
-//                for (int j = 0; j < max; j++) {
-//                    if (j < min && i + j < countDays) {
-//                        result[i + j][indexDepartment] = chefPair;
-//                    } else if (i + j < countDays) {
-//                        result[i + j][indexDepartment] = getNotFullChefPair(chefPair);
-//                    }
-//                }
                 for (int j = indexDepartment; j < max * departments.size() + indexDepartment; j += departments.size()) {
                     if (j < min * departments.size() + indexDepartment && j < countDays * departments.size()) {
-//                        if (busyChefs.get(chefPair.getFirstChef()) == 0 && busyChefs.get(chefPair.getSecondChef()) == 0) {
-//                            result[i][j] = chefPair;
-//                        } else if (busyChefs.get(chefPair.getFirstChef()) != 0 &&
-//                                busyChefs.get(chefPair.getSecondChef()) != 0) {
-//                            System.out.println("lol");
-//                        } else if (busyChefs.get(chefPair.getFirstChef()) != 0) {
-//                            result[i][j] = new ChefPair(chefPair.getSecondChef(), null);
-//                        } else if (busyChefs.get(chefPair.getSecondChef()) != 0) {
-//                            result[i][j] = new ChefPair(chefPair.getFirstChef(), null);
-//                        } else {
-//                            return null;
-//                        }
                         result[i][j] = chefPair;
                     } else if (j < countDays * departments.size()) {
                         if (result[i][j] == null) {

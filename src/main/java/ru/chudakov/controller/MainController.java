@@ -5,7 +5,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 public class MainController {
-    @RequestMapping(value = "")
+    @RequestMapping(value = {
+            "/",
+            "/chef",
+            "/timetable"
+    })
     public String getMainPage() {
         return "index";
     }

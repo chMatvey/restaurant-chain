@@ -38,7 +38,7 @@ public class Chef {
     private WorkShift workShift;
 
     @NonNull
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "operatingMode_id")
     private OperatingMode operatingMode;
 }

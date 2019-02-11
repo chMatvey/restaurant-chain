@@ -11,7 +11,5 @@ public interface ChefService {
 
     public void deleteChef(Chef chef);
 
-    public Chef updateChef(Chef chef);
-
     public Chef findChefById(int id);
 }

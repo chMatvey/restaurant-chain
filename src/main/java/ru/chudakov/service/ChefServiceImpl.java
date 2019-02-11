@@ -33,11 +33,6 @@ public class ChefServiceImpl implements ChefService {
     }
 
     @Override
-    public Chef updateChef(Chef chef) {
-        return repository.save(chef);
-    }
-
-    @Override
     public Chef findChefById(int id) {
         return repository.findById(id).orElse(null);
     }
